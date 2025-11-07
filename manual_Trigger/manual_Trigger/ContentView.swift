@@ -15,6 +15,7 @@ struct ContentView: View {
                 .foregroundStyle(.tint)
             Text("Hello, world!")
             Text("Testing comment-triggered workflow")
+            Text("With test plans!")
         }
         .padding()
     }

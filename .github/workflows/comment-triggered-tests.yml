@@ -162,7 +162,7 @@ jobs:
           cd manual_Trigger
           xcodebuild test \
             -scheme manual_Trigger \
-            -destination 'platform=macOS,variant=Designed for [iPad,iPhone]' \
+            -destination 'platform=macOS' \
             -only-testing:manual_TriggerTests/manual_TriggerTests/testFirst
 
       - name: Update check to success
@@ -227,7 +227,7 @@ jobs:
           cd manual_Trigger
           xcodebuild test \
             -scheme manual_Trigger \
-            -destination 'platform=macOS,variant=Designed for [iPad,iPhone]' \
+            -destination 'platform=macOS' \
             -only-testing:manual_TriggerTests/manual_TriggerTests/testSecond
 
       - name: Update check to success

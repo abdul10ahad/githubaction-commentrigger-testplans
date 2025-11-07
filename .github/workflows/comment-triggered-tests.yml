@@ -18,7 +18,7 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - name: Create pending check for Test 1
+      - name: Create pending check for First Leg
         uses: actions/github-script@v7
         with:
           script: |
@@ -27,11 +27,11 @@ jobs:
               repo: context.repo.repo,
               sha: context.payload.pull_request.head.sha,
               state: 'pending',
-              context: 'Manual Tests / Test 1',
-              description: 'Comment "/run-test-1" to trigger'
+              context: 'Manual Tests / First Leg',
+              description: 'Comment "/run-first-leg" to trigger'
             });
 
-      - name: Create pending check for Test 2
+      - name: Create pending check for Second Leg
         uses: actions/github-script@v7
         with:
           script: |
@@ -40,8 +40,21 @@ jobs:
               repo: context.repo.repo,
               sha: context.payload.pull_request.head.sha,
               state: 'pending',
-              context: 'Manual Tests / Test 2',
-              description: 'Comment "/run-test-2" to trigger'
+              context: 'Manual Tests / Second Leg',
+              description: 'Comment "/run-second-leg" to trigger'
+            });
+
+      - name: Create pending check for Third Leg
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: 'pending',
+              context: 'Manual Tests / Third Leg',
+              description: 'Comment "/run-third-leg" to trigger'
             });
 
       - name: Create pending check for All Tests
@@ -62,13 +75,15 @@ jobs:
     if: |
       github.event_name == 'issue_comment' &&
       github.event.issue.pull_request &&
-      (contains(github.event.comment.body, '/run-test-1') ||
-       contains(github.event.comment.body, '/run-test-2') ||
+      (contains(github.event.comment.body, '/run-first-leg') ||
+       contains(github.event.comment.body, '/run-second-leg') ||
+       contains(github.event.comment.body, '/run-third-leg') ||
        contains(github.event.comment.body, '/run-all-tests'))
     runs-on: ubuntu-latest
     outputs:
-      run_test_1: ${{ steps.parse.outputs.run_test_1 }}
-      run_test_2: ${{ steps.parse.outputs.run_test_2 }}
+      run_first_leg: ${{ steps.parse.outputs.run_first_leg }}
+      run_second_leg: ${{ steps.parse.outputs.run_second_leg }}
+      run_third_leg: ${{ steps.parse.outputs.run_third_leg }}
       pr_ref: ${{ steps.pr.outputs.ref }}
       pr_sha: ${{ steps.pr.outputs.sha }}
       pr_number: ${{ steps.pr.outputs.number }}
@@ -109,14 +124,21 @@ jobs:
           comment="${{ github.event.comment.body }}"
 
           if [[ $comment == *"/run-all-tests"* ]]; then
-            echo "run_test_1=true" >> $GITHUB_OUTPUT
-            echo "run_test_2=true" >> $GITHUB_OUTPUT
-          elif [[ $comment == *"/run-test-1"* ]]; then
-            echo "run_test_1=true" >> $GITHUB_OUTPUT
-            echo "run_test_2=false" >> $GITHUB_OUTPUT
-          elif [[ $comment == *"/run-test-2"* ]]; then
-            echo "run_test_1=false" >> $GITHUB_OUTPUT
-            echo "run_test_2=true" >> $GITHUB_OUTPUT
+            echo "run_first_leg=true" >> $GITHUB_OUTPUT
+            echo "run_second_leg=true" >> $GITHUB_OUTPUT
+            echo "run_third_leg=true" >> $GITHUB_OUTPUT
+          elif [[ $comment == *"/run-first-leg"* ]]; then
+            echo "run_first_leg=true" >> $GITHUB_OUTPUT
+            echo "run_second_leg=false" >> $GITHUB_OUTPUT
+            echo "run_third_leg=false" >> $GITHUB_OUTPUT
+          elif [[ $comment == *"/run-second-leg"* ]]; then
+            echo "run_first_leg=false" >> $GITHUB_OUTPUT
+            echo "run_second_leg=true" >> $GITHUB_OUTPUT
+            echo "run_third_leg=false" >> $GITHUB_OUTPUT
+          elif [[ $comment == *"/run-third-leg"* ]]; then
+            echo "run_first_leg=false" >> $GITHUB_OUTPUT
+            echo "run_second_leg=false" >> $GITHUB_OUTPUT
+            echo "run_third_leg=true" >> $GITHUB_OUTPUT
           fi
 
       - name: React to comment
@@ -130,10 +152,10 @@ jobs:
               content: 'rocket'
             });
 
-  # Job 3: Run Test 1
-  run-test-1:
+  # Job 3: Run First Leg Tests
+  run-first-leg:
     needs: parse-comment
-    if: needs.parse-comment.outputs.run_test_1 == 'true'
+    if: needs.parse-comment.outputs.run_first_leg == 'true'
     runs-on: macos-latest
     timeout-minutes: 10
 
@@ -152,18 +174,21 @@ jobs:
               repo: context.repo.repo,
               sha: '${{ needs.parse-comment.outputs.pr_sha }}',
               state: 'pending',
-              context: 'Manual Tests / Test 1',
-              description: 'Running testFirst...',
+              context: 'Manual Tests / First Leg',
+              description: 'Running First Leg tests (Math tests)...',
               target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             });
 
-      - name: Run Test 1
+      - name: Run Test 1 (First Leg)
         run: |
           cd manual_Trigger
           xcodebuild test \
             -scheme manual_Trigger \
+            -testPlan FirstLegTests \
             -destination 'platform=macOS' \
-            -only-testing:manual_TriggerTests/manual_TriggerTests/testFirst
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
 
       - name: Update check to success
         if: success()
@@ -175,8 +200,8 @@ jobs:
               repo: context.repo.repo,
               sha: '${{ needs.parse-comment.outputs.pr_sha }}',
               state: 'success',
-              context: 'Manual Tests / Test 1',
-              description: 'Test 1 passed!',
+              context: 'Manual Tests / First Leg',
+              description: 'First Leg tests passed!',
               target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             });
 
@@ -190,15 +215,15 @@ jobs:
               repo: context.repo.repo,
               sha: '${{ needs.parse-comment.outputs.pr_sha }}',
               state: 'failure',
-              context: 'Manual Tests / Test 1',
-              description: 'Test 1 failed',
+              context: 'Manual Tests / First Leg',
+              description: 'First Leg tests failed',
               target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             });
 
-  # Job 4: Run Test 2
-  run-test-2:
+  # Job 4: Run Second Leg Tests
+  run-second-leg:
     needs: parse-comment
-    if: needs.parse-comment.outputs.run_test_2 == 'true'
+    if: needs.parse-comment.outputs.run_second_leg == 'true'
     runs-on: macos-latest
     timeout-minutes: 10
 
@@ -217,18 +242,21 @@ jobs:
               repo: context.repo.repo,
               sha: '${{ needs.parse-comment.outputs.pr_sha }}',
               state: 'pending',
-              context: 'Manual Tests / Test 2',
-              description: 'Running testSecond...',
+              context: 'Manual Tests / Second Leg',
+              description: 'Running Second Leg tests (String tests)...',
               target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             });
 
-      - name: Run Test 2
+      - name: Run Test 2 (Second Leg)
         run: |
           cd manual_Trigger
           xcodebuild test \
             -scheme manual_Trigger \
+            -testPlan SecondLegTests \
             -destination 'platform=macOS' \
-            -only-testing:manual_TriggerTests/manual_TriggerTests/testSecond
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
 
       - name: Update check to success
         if: success()
@@ -240,8 +268,8 @@ jobs:
               repo: context.repo.repo,
               sha: '${{ needs.parse-comment.outputs.pr_sha }}',
               state: 'success',
-              context: 'Manual Tests / Test 2',
-              description: 'Test 2 passed!',
+              context: 'Manual Tests / Second Leg',
+              description: 'Second Leg tests passed!',
               target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             });
 
@@ -255,23 +283,92 @@ jobs:
               repo: context.repo.repo,
               sha: '${{ needs.parse-comment.outputs.pr_sha }}',
               state: 'failure',
-              context: 'Manual Tests / Test 2',
-              description: 'Test 2 failed',
+              context: 'Manual Tests / Second Leg',
+              description: 'Second Leg tests failed',
               target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             });
 
-  # Job 5: Update All Tests check status
+  # Job 5: Run Third Leg Tests
+  run-third-leg:
+    needs: parse-comment
+    if: needs.parse-comment.outputs.run_third_leg == 'true'
+    runs-on: macos-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-comment.outputs.pr_ref }}
+
+      - name: Update check to running
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: '${{ needs.parse-comment.outputs.pr_sha }}',
+              state: 'pending',
+              context: 'Manual Tests / Third Leg',
+              description: 'Running Third Leg tests (Array tests)...',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            });
+
+      - name: Run Test 3 (Third Leg)
+        run: |
+          cd manual_Trigger
+          xcodebuild test \
+            -scheme manual_Trigger \
+            -testPlan ThirdLegTests \
+            -destination 'platform=macOS' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Update check to success
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: '${{ needs.parse-comment.outputs.pr_sha }}',
+              state: 'success',
+              context: 'Manual Tests / Third Leg',
+              description: 'Third Leg tests passed!',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            });
+
+      - name: Update check to failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: '${{ needs.parse-comment.outputs.pr_sha }}',
+              state: 'failure',
+              context: 'Manual Tests / Third Leg',
+              description: 'Third Leg tests failed',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            });
+
+  # Job 6: Update All Tests check status
   update-all-tests-check:
-    needs: [parse-comment, run-test-1, run-test-2]
+    needs: [parse-comment, run-first-leg, run-second-leg, run-third-leg]
     if: |
       always() &&
-      needs.parse-comment.outputs.run_test_1 == 'true' &&
-      needs.parse-comment.outputs.run_test_2 == 'true'
+      needs.parse-comment.outputs.run_first_leg == 'true' &&
+      needs.parse-comment.outputs.run_second_leg == 'true' &&
+      needs.parse-comment.outputs.run_third_leg == 'true'
     runs-on: ubuntu-latest
 
     steps:
       - name: Update All Tests check to success
-        if: needs.run-test-1.result == 'success' && needs.run-test-2.result == 'success'
+        if: needs.run-first-leg.result == 'success' && needs.run-second-leg.result == 'success' && needs.run-third-leg.result == 'success'
         uses: actions/github-script@v7
         with:
           script: |
@@ -286,7 +383,7 @@ jobs:
             });
 
       - name: Update All Tests check to failure
-        if: needs.run-test-1.result != 'success' || needs.run-test-2.result != 'success'
+        if: needs.run-first-leg.result != 'success' || needs.run-second-leg.result != 'success' || needs.run-third-leg.result != 'success'
         uses: actions/github-script@v7
         with:
           script: |

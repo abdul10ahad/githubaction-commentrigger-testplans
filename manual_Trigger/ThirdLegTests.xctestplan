@@ -1,0 +1,30 @@
+{
+  "configurations" : [
+    {
+      "id" : "E2CC3F95-0H34-6G20-0702-G3DF9BG8G1FC",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [
+        "manual_TriggerTests/testMathAddition()",
+        "manual_TriggerTests/testMathMultiplication()",
+        "manual_TriggerTests/testStringLength()",
+        "manual_TriggerTests/testStringConcatenation()"
+      ],
+      "target" : {
+        "containerPath" : "container:manual_Trigger.xcodeproj",
+        "identifier" : "manual_TriggerTests",
+        "name" : "manual_TriggerTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -10,6 +10,7 @@ permissions:
   pull-requests: write
   checks: write
   contents: read
+  statuses: write
 
 jobs:
   # Job 1: Create pending checks when PR is opened

@@ -157,15 +157,12 @@ jobs:
               target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             });
 
-      - name: List available simulators
-        run: xcrun simctl list devices available
-
       - name: Run Test 1
         run: |
           cd manual_Trigger
           xcodebuild test \
             -scheme manual_Trigger \
-            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -destination 'platform=macOS,variant=Designed for [iPad,iPhone]' \
             -only-testing:manual_TriggerTests/manual_TriggerTests/testFirst
 
       - name: Update check to success
@@ -225,15 +222,12 @@ jobs:
               target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
             });
 
-      - name: List available simulators
-        run: xcrun simctl list devices available
-
       - name: Run Test 2
         run: |
           cd manual_Trigger
           xcodebuild test \
             -scheme manual_Trigger \
-            -destination 'platform=iOS Simulator,name=iPhone 17' \
+            -destination 'platform=macOS,variant=Designed for [iPad,iPhone]' \
             -only-testing:manual_TriggerTests/manual_TriggerTests/testSecond
 
       - name: Update check to success

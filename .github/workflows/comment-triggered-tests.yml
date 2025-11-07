@@ -1,0 +1,306 @@
+name: Comment-Triggered Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  pull-requests: write
+  checks: write
+  contents: read
+
+jobs:
+  # Job 1: Create pending checks when PR is opened
+  create-pending-checks:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create pending check for Test 1
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: 'pending',
+              context: 'Manual Tests / Test 1',
+              description: 'Comment "/run-test-1" to trigger'
+            });
+
+      - name: Create pending check for Test 2
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: 'pending',
+              context: 'Manual Tests / Test 2',
+              description: 'Comment "/run-test-2" to trigger'
+            });
+
+      - name: Create pending check for All Tests
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: context.payload.pull_request.head.sha,
+              state: 'pending',
+              context: 'Manual Tests / All Tests',
+              description: 'Comment "/run-all-tests" to trigger'
+            });
+
+  # Job 2: Parse comment and determine what to run
+  parse-comment:
+    if: |
+      github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request &&
+      (contains(github.event.comment.body, '/run-test-1') ||
+       contains(github.event.comment.body, '/run-test-2') ||
+       contains(github.event.comment.body, '/run-all-tests'))
+    runs-on: ubuntu-latest
+    outputs:
+      run_test_1: ${{ steps.parse.outputs.run_test_1 }}
+      run_test_2: ${{ steps.parse.outputs.run_test_2 }}
+      pr_ref: ${{ steps.pr.outputs.ref }}
+      pr_sha: ${{ steps.pr.outputs.sha }}
+      pr_number: ${{ steps.pr.outputs.number }}
+
+    steps:
+      - name: Check user permissions
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const permissionRes = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              username: context.actor
+            });
+
+            const permission = permissionRes.data.permission;
+            if (!['admin', 'write', 'maintain'].includes(permission)) {
+              core.setFailed(`@${context.actor} does not have permission to trigger tests. Only users with write access can trigger tests.`);
+            }
+
+      - name: Get PR details
+        id: pr
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+            core.setOutput('ref', pr.data.head.ref);
+            core.setOutput('sha', pr.data.head.sha);
+            core.setOutput('number', context.issue.number);
+
+      - name: Parse comment
+        id: parse
+        run: |
+          comment="${{ github.event.comment.body }}"
+
+          if [[ $comment == *"/run-all-tests"* ]]; then
+            echo "run_test_1=true" >> $GITHUB_OUTPUT
+            echo "run_test_2=true" >> $GITHUB_OUTPUT
+          elif [[ $comment == *"/run-test-1"* ]]; then
+            echo "run_test_1=true" >> $GITHUB_OUTPUT
+            echo "run_test_2=false" >> $GITHUB_OUTPUT
+          elif [[ $comment == *"/run-test-2"* ]]; then
+            echo "run_test_1=false" >> $GITHUB_OUTPUT
+            echo "run_test_2=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: React to comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.reactions.createForIssueComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              comment_id: context.payload.comment.id,
+              content: 'rocket'
+            });
+
+  # Job 3: Run Test 1
+  run-test-1:
+    needs: parse-comment
+    if: needs.parse-comment.outputs.run_test_1 == 'true'
+    runs-on: macos-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-comment.outputs.pr_ref }}
+
+      - name: Update check to running
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: '${{ needs.parse-comment.outputs.pr_sha }}',
+              state: 'pending',
+              context: 'Manual Tests / Test 1',
+              description: 'Running testFirst...',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            });
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_16.1.app
+
+      - name: Run Test 1
+        run: |
+          cd manual_Trigger
+          xcodebuild test \
+            -scheme manual_Trigger \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.1' \
+            -only-testing:manual_TriggerTests/manual_TriggerTests/testFirst
+
+      - name: Update check to success
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: '${{ needs.parse-comment.outputs.pr_sha }}',
+              state: 'success',
+              context: 'Manual Tests / Test 1',
+              description: 'Test 1 passed!',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            });
+
+      - name: Update check to failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: '${{ needs.parse-comment.outputs.pr_sha }}',
+              state: 'failure',
+              context: 'Manual Tests / Test 1',
+              description: 'Test 1 failed',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            });
+
+  # Job 4: Run Test 2
+  run-test-2:
+    needs: parse-comment
+    if: needs.parse-comment.outputs.run_test_2 == 'true'
+    runs-on: macos-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.parse-comment.outputs.pr_ref }}
+
+      - name: Update check to running
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: '${{ needs.parse-comment.outputs.pr_sha }}',
+              state: 'pending',
+              context: 'Manual Tests / Test 2',
+              description: 'Running testSecond...',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            });
+
+      - name: Select Xcode version
+        run: sudo xcode-select -s /Applications/Xcode_16.1.app
+
+      - name: Run Test 2
+        run: |
+          cd manual_Trigger
+          xcodebuild test \
+            -scheme manual_Trigger \
+            -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.1' \
+            -only-testing:manual_TriggerTests/manual_TriggerTests/testSecond
+
+      - name: Update check to success
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: '${{ needs.parse-comment.outputs.pr_sha }}',
+              state: 'success',
+              context: 'Manual Tests / Test 2',
+              description: 'Test 2 passed!',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            });
+
+      - name: Update check to failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: '${{ needs.parse-comment.outputs.pr_sha }}',
+              state: 'failure',
+              context: 'Manual Tests / Test 2',
+              description: 'Test 2 failed',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            });
+
+  # Job 5: Update All Tests check status
+  update-all-tests-check:
+    needs: [parse-comment, run-test-1, run-test-2]
+    if: |
+      always() &&
+      needs.parse-comment.outputs.run_test_1 == 'true' &&
+      needs.parse-comment.outputs.run_test_2 == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Update All Tests check to success
+        if: needs.run-test-1.result == 'success' && needs.run-test-2.result == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: '${{ needs.parse-comment.outputs.pr_sha }}',
+              state: 'success',
+              context: 'Manual Tests / All Tests',
+              description: 'All tests passed!',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            });
+
+      - name: Update All Tests check to failure
+        if: needs.run-test-1.result != 'success' || needs.run-test-2.result != 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: '${{ needs.parse-comment.outputs.pr_sha }}',
+              state: 'failure',
+              context: 'Manual Tests / All Tests',
+              description: 'Some tests failed',
+              target_url: `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`
+            });

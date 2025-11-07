@@ -10,8 +10,16 @@ import Testing
 
 struct manual_TriggerTests {
 
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    @Test func testFirst() async throws {
+        // Simulate First Test Leg
+        let value = 2 + 2
+        #expect(value == 4, "Basic math should work")
+    }
+
+    @Test func testSecond() async throws {
+        // Simulate Second Test Leg
+        let text = "Hello"
+        #expect(text.count == 5, "String length should be 5")
     }
 
 }

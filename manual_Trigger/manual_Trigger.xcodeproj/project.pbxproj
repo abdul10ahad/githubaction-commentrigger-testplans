@@ -24,8 +24,8 @@
 		540650002EBEA978004131AE /* manual_Trigger.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = manual_Trigger.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5406500D2EBEA97A004131AE /* manual_TriggerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = manual_TriggerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		540650862EBEBFD0004131AE /* FirstLegTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = FirstLegTests.xctestplan; sourceTree = "<group>"; };
-		540650902EBEC063004131AE /* ThirdLegTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = file; path = ThirdLegTests.xctestplan; sourceTree = "<group>"; };
-		540650912EBEC0B5004131AE /* SecondLegTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = file; path = SecondLegTests.xctestplan; sourceTree = "<group>"; };
+		540650902EBEC063004131AE /* ThirdLegTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = ThirdLegTests.xctestplan; sourceTree = "<group>"; };
+		540650912EBEC0B5004131AE /* SecondLegTests.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = SecondLegTests.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */

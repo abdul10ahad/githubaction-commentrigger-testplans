@@ -11,8 +11,8 @@ struct manual_TriggerTests {
 
     // First Leg Tests
     @Test func testMathAddition() async throws {
-        let value = 2 + 2
-        #expect(value == 4, "Addition should work")
+        let value = 2 + 2 +2
+        #expect(value == 6, "Addition should work")
     }
 
     @Test func testMathMultiplication() async throws {

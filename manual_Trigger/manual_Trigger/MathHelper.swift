@@ -9,7 +9,7 @@ import Foundation
 
 struct MathHelper {
     static func add(_ a: Int, _ b: Int) -> Int {
-        return a + b
+        return a + b + 1
     }
 
     static func multiply(_ a: Int, _ b: Int) -> Int {

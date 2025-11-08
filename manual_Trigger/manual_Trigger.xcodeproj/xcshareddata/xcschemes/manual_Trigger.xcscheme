@@ -52,17 +52,6 @@
                ReferencedContainer = "container:manual_Trigger.xcodeproj">
             </BuildableReference>
          </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "540650162EBEA97A004131AE"
-               BuildableName = "manual_TriggerUITests.xctest"
-               BlueprintName = "manual_TriggerUITests"
-               ReferencedContainer = "container:manual_Trigger.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

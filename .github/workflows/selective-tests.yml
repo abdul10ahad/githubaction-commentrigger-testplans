@@ -55,7 +55,7 @@ jobs:
           cd manual_Trigger
           if [ -n "${{ steps.changed-files.outputs.changed_files }}" ]; then
             echo "Running XcodeSelectiveTesting on FirstLegTests..."
-            mint run xcode-selective-test manual_Trigger.xcodeproj \
+            /Users/runner/.mint/bin/xcode-selective-test manual_Trigger.xcodeproj \
               --test-plan FirstLegTests.xctestplan \
               --changed-files "${{ steps.changed-files.outputs.changed_files }}" \
               --verbose || true
@@ -68,7 +68,7 @@ jobs:
           cd manual_Trigger
           if [ -n "${{ steps.changed-files.outputs.changed_files }}" ]; then
             echo "Running XcodeSelectiveTesting on SecondLegTests..."
-            mint run xcode-selective-test manual_Trigger.xcodeproj \
+            /Users/runner/.mint/bin/xcode-selective-test manual_Trigger.xcodeproj \
               --test-plan SecondLegTests.xctestplan \
               --changed-files "${{ steps.changed-files.outputs.changed_files }}" \
               --verbose || true
@@ -79,7 +79,7 @@ jobs:
           cd manual_Trigger
           if [ -n "${{ steps.changed-files.outputs.changed_files }}" ]; then
             echo "Running XcodeSelectiveTesting on ThirdLegTests..."
-            mint run xcode-selective-test manual_Trigger.xcodeproj \
+            /Users/runner/.mint/bin/xcode-selective-test manual_Trigger.xcodeproj \
               --test-plan ThirdLegTests.xctestplan \
               --changed-files "${{ steps.changed-files.outputs.changed_files }}" \
               --verbose || true

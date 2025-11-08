@@ -6,7 +6,6 @@
 //
 
 import Testing
-@testable import manual_Trigger
 
 struct manual_TriggerTests {
 

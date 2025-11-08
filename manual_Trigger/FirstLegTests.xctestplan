@@ -13,18 +13,36 @@
   },
   "testTargets" : [
     {
-      "skippedTests" : [
-        "manual_TriggerTests/testStringLength()",
-        "manual_TriggerTests/testStringConcatenation()",
-        "manual_TriggerTests/testArrayOperations()",
-        "manual_TriggerTests/testArrayFiltering()"
-      ],
+      "skippedTests" : {
+        "suites" : [
+          {
+            "name" : "manual_TriggerTests",
+            "testFunctions" : [
+              "testArrayFiltering()",
+              "testArrayOperations()",
+              "testStringConcatenation()",
+              "testStringLength()"
+            ]
+          }
+        ],
+        "xctestClasses" : [
+          {
+            "name" : "manual_TriggerTests",
+            "xctestMethods" : [
+              "testArrayFiltering()",
+              "testArrayOperations()",
+              "testStringConcatenation()",
+              "testStringLength()"
+            ]
+          }
+        ]
+      },
       "target" : {
         "containerPath" : "container:manual_Trigger.xcodeproj",
-        "identifier" : "manual_TriggerTests",
+        "identifier" : "5406500C2EBEA97A004131AE",
         "name" : "manual_TriggerTests"
       }
     }
   ],
-  "version" : 1
+  "version" : 2
 }

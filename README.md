@@ -1,6 +1,8 @@
-# Comment-Triggered GitHub Actions Test Demo
+# GitHub Actions Test Workflows Demo
 
-This is a simplified iOS/macOS app demonstrating how to implement **comment-triggered GitHub Actions workflows** for running tests on pull requests using test plans.
+This is a simplified iOS/macOS app demonstrating two powerful GitHub Actions workflows for testing:
+1. **Comment-Triggered Tests** - Manual control over which test legs to run
+2. **Selective Tests** - Automatically run only tests affected by code changes
 
 ## Purpose
 
@@ -9,6 +11,7 @@ This demo app shows how to:
 - Use Xcode test plans to organize tests
 - Display test status as PR checks
 - Allow manual control over which tests run on any PR (including PRs to main)
+- **Automatically run only relevant tests** based on changed files (using [XcodeSelectiveTesting](https://github.com/mikeger/XcodeSelectiveTesting))
 
 ## Project Structure
 
@@ -23,7 +26,8 @@ manual_Trigger/
 ├── SecondLegTests.xctestplan         # String tests (Length, Concatenation)
 ├── ThirdLegTests.xctestplan          # Array tests (Operations, Filtering)
 └── .github/workflows/
-    └── comment-triggered-tests.yml    # Comment-triggered workflow
+    ├── comment-triggered-tests.yml    # Comment-triggered workflow
+    └── selective-tests.yml            # Automatic selective testing workflow
 ```
 
 ## Tests Organization
@@ -42,26 +46,56 @@ The tests are divided into **3 legs**, each with 2 tests:
 - `testArrayOperations` - Tests array count and first element
 - `testArrayFiltering` - Tests array filtering
 
-## How It Works
+## Workflows
 
-### 1. When a PR is Opened
+This repository includes two different testing workflows:
 
-The workflow automatically creates **3 pending checks** in the PR:
-- ⏸ **Manual Tests / Test 1** - Comment "/run-test-1" to trigger
-- ⏸ **Manual Tests / Test 2** - Comment "/run-test-2" to trigger
+### Workflow 1: Comment-Triggered Tests (Manual)
+
+Allows manual control over which test legs to run via PR comments.
+
+**When a PR is opened**, the workflow automatically creates **4 pending checks**:
+- ⏸ **Manual Tests / First Leg** - Comment "/run-first-leg" to trigger
+- ⏸ **Manual Tests / Second Leg** - Comment "/run-second-leg" to trigger
+- ⏸ **Manual Tests / Third Leg** - Comment "/run-third-leg" to trigger
 - ⏸ **Manual Tests / All Tests** - Comment "/run-all-tests" to trigger
 
-### 2. Trigger Tests with Comments
+### Workflow 2: Selective Tests (Automatic)
 
-Post a comment on the PR with one of these commands:
+**Automatically runs on every PR** and intelligently determines which tests to run based on the files you changed. Uses [XcodeSelectiveTesting](https://github.com/mikeger/XcodeSelectiveTesting) to:
+
+1. Detect which files changed in your PR
+2. Analyze the dependency graph of your project
+3. Identify which test targets are affected
+4. Run only the relevant tests, skipping unrelated ones
+
+This can **significantly reduce CI time** by avoiding unnecessary test execution.
+
+## How It Works
+
+### Comment-Triggered Tests
+
+**Trigger tests manually** by posting a comment on the PR with one of these commands:
 
 | Command | What it runs |
 |---------|-------------|
-| `/run-test-1` | Runs only `testFirst()` |
-| `/run-test-2` | Runs only `testSecond()` |
-| `/run-all-tests` | Runs both tests |
+| `/run-first-leg` | Runs only Math tests (testMathAddition, testMathMultiplication) |
+| `/run-second-leg` | Runs only String tests (testStringLength, testStringConcatenation) |
+| `/run-third-leg` | Runs only Array tests (testArrayOperations, testArrayFiltering) |
+| `/run-all-tests` | Runs all three test legs |
 
-### 3. Check Status Updates
+### Selective Tests
+
+**Runs automatically** on every PR. The workflow:
+
+1. Detects files changed in the PR (compared to base branch)
+2. Runs XcodeSelectiveTesting on each test plan
+3. XcodeSelectiveTesting modifies the test plans to skip unrelated tests
+4. Executes only the relevant tests
+
+Example: If you only change `ContentView.swift`, tests that don't depend on `ContentView` will be skipped.
+
+### Check Status Updates
 
 The workflow updates the PR check status in real-time:
 - ⏳ **Running** - Test is executing

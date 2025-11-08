@@ -1,11 +1,12 @@
 # Comment-Triggered GitHub Actions Test Demo
 
-This is a simplified iOS app demonstrating how to implement **comment-triggered GitHub Actions workflows** for running tests on pull requests.
+This is a simplified iOS/macOS app demonstrating how to implement **comment-triggered GitHub Actions workflows** for running tests on pull requests using test plans.
 
 ## Purpose
 
 This demo app shows how to:
-- Trigger specific tests using PR comments
+- Trigger specific test legs using PR comments
+- Use Xcode test plans to organize tests
 - Display test status as PR checks
 - Allow manual control over which tests run on any PR (including PRs to main)
 
@@ -14,13 +15,32 @@ This demo app shows how to:
 ```
 manual_Trigger/
 ├── manual_Trigger/
-│   ├── manual_TriggerApp.swift    # Main app entry point
-│   └── ContentView.swift           # Simple SwiftUI view
+│   ├── manual_TriggerApp.swift       # Main app entry point
+│   └── ContentView.swift              # Simple SwiftUI view
 ├── manual_TriggerTests/
-│   └── manual_TriggerTests.swift   # Two simple tests (testFirst, testSecond)
+│   └── manual_TriggerTests.swift      # 6 tests divided into 3 legs
+├── FirstLegTests.xctestplan          # Math tests (Addition, Multiplication)
+├── SecondLegTests.xctestplan         # String tests (Length, Concatenation)
+├── ThirdLegTests.xctestplan          # Array tests (Operations, Filtering)
 └── .github/workflows/
-    └── comment-triggered-tests.yml # Comment-triggered workflow
+    └── comment-triggered-tests.yml    # Comment-triggered workflow
 ```
+
+## Tests Organization
+
+The tests are divided into **3 legs**, each with 2 tests:
+
+### First Leg (Math Tests)
+- `testMathAddition` - Tests 2 + 2 = 4
+- `testMathMultiplication` - Tests 3 × 4 = 12
+
+### Second Leg (String Tests)
+- `testStringLength` - Tests string length
+- `testStringConcatenation` - Tests string concatenation
+
+### Third Leg (Array Tests)
+- `testArrayOperations` - Tests array count and first element
+- `testArrayFiltering` - Tests array filtering
 
 ## How It Works
 

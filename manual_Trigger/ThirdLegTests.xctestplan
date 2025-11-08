@@ -1,7 +1,7 @@
 {
   "configurations" : [
     {
-      "id" : "E2CC3F95-0H34-6G20-0702-G3DF9BG8G1FC",
+      "id" : "E9B016B6-5590-4A26-B573-D81F9F3EA34B",
       "name" : "Configuration 1",
       "options" : {
 
@@ -9,22 +9,29 @@
     }
   ],
   "defaultOptions" : {
-    "testTimeoutsEnabled" : true
+
   },
   "testTargets" : [
     {
-      "skippedTests" : [
-        "manual_TriggerTests/testMathAddition()",
-        "manual_TriggerTests/testMathMultiplication()",
-        "manual_TriggerTests/testStringLength()",
-        "manual_TriggerTests/testStringConcatenation()"
-      ],
+      "skippedTests" : {
+        "suites" : [
+          {
+            "name" : "manual_TriggerTests",
+            "testFunctions" : [
+              "testMathAddition()",
+              "testMathMultiplication()",
+              "testStringConcatenation()",
+              "testStringLength()"
+            ]
+          }
+        ]
+      },
       "target" : {
         "containerPath" : "container:manual_Trigger.xcodeproj",
-        "identifier" : "manual_TriggerTests",
+        "identifier" : "5406500C2EBEA97A004131AE",
         "name" : "manual_TriggerTests"
       }
     }
   ],
-  "version" : 1
+  "version" : 2
 }

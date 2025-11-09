@@ -38,5 +38,10 @@ public struct MathHelper {
         return Int(pow(Double(base), Double(exponent)))
     }
 
+    // New function: absolute value
+    public static func abs(_ value: Int) -> Int {
+        return value < 0 ? -value : value
+    }
+
     public init() {}
 }

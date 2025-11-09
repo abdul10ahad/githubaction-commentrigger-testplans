@@ -25,115 +25,37 @@ jobs:
         run: |
           brew install tuist
 
-      - name: Generate Xcode project with Tuist
+      - name: Run Selective Tests with Tuist
+        id: tuist-test
         run: |
-          tuist generate
-
-      - name: Run All Unit Tests
-        id: all-unit-tests
-        run: |
-          echo "Running All Unit Tests..."
-          xcodebuild test \
-            -workspace manual_Trigger.xcworkspace \
-            -scheme manual_Trigger \
-            -testPlan AllUnitTests \
-            -destination 'platform=macOS' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
-        continue-on-error: true
-
-      - name: Run FirstLeg (Math Unit + UI Tests)
-        id: first-leg
-        run: |
-          echo "Running FirstLegTests (Math Unit + UI Tests)..."
-          xcodebuild test \
-            -workspace manual_Trigger.xcworkspace \
-            -scheme manual_Trigger \
-            -testPlan FirstLegTests \
-            -destination 'platform=macOS' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
-        continue-on-error: true
-
-      - name: Run SecondLeg (String Unit + UI Tests)
-        id: second-leg
-        run: |
-          echo "Running SecondLegTests (String Unit + UI Tests)..."
-          xcodebuild test \
-            -workspace manual_Trigger.xcworkspace \
-            -scheme manual_Trigger \
-            -testPlan SecondLegTests \
-            -destination 'platform=macOS' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
-        continue-on-error: true
-
-      - name: Run ThirdLeg (Array Unit + UI Tests)
-        id: third-leg
-        run: |
-          echo "Running ThirdLegTests (Array Unit + UI Tests)..."
-          xcodebuild test \
-            -workspace manual_Trigger.xcworkspace \
-            -scheme manual_Trigger \
-            -testPlan ThirdLegTests \
-            -destination 'platform=macOS' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+          echo "Running selective tests with Tuist..."
+          tuist test manual_Trigger \
+            --platform macOS \
+            --selective-testing \
+            -- CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
         continue-on-error: true
 
       - name: Check test results
         run: |
           echo "=========================================="
-          echo "Test Results Summary"
+          echo "Selective Test Results"
           echo "=========================================="
           echo ""
-          echo "Unit Tests:"
-          echo "  AllUnitTests:     ${{ steps.all-unit-tests.outcome }} (${{ steps.all-unit-tests.conclusion }})"
-          echo ""
-          echo "Feature Tests (Unit + UI):"
-          echo "  FirstLeg (Math):   ${{ steps.first-leg.outcome }} (${{ steps.first-leg.conclusion }})"
-          echo "  SecondLeg (String): ${{ steps.second-leg.outcome }} (${{ steps.second-leg.conclusion }})"
-          echo "  ThirdLeg (Array):  ${{ steps.third-leg.outcome }} (${{ steps.third-leg.conclusion }})"
+          echo "Tuist Selective Testing: ${{ steps.tuist-test.outcome }}"
           echo ""
           echo "=========================================="
 
-          FAILED_TESTS=""
-          FAILED_COUNT=0
-
-          if [ "${{ steps.all-unit-tests.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  ❌ AllUnitTests - ${{ steps.all-unit-tests.conclusion }}"
-            FAILED_COUNT=$((FAILED_COUNT + 1))
-          fi
-
-          if [ "${{ steps.first-leg.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  ❌ FirstLeg (Math Unit + UI) - ${{ steps.first-leg.conclusion }}"
-            FAILED_COUNT=$((FAILED_COUNT + 1))
-          fi
-
-          if [ "${{ steps.second-leg.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  ❌ SecondLeg (String Unit + UI) - ${{ steps.second-leg.conclusion }}"
-            FAILED_COUNT=$((FAILED_COUNT + 1))
-          fi
-
-          if [ "${{ steps.third-leg.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  ❌ ThirdLeg (Array Unit + UI) - ${{ steps.third-leg.conclusion }}"
-            FAILED_COUNT=$((FAILED_COUNT + 1))
-          fi
-
-          if [ -n "$FAILED_TESTS" ]; then
+          if [ "${{ steps.tuist-test.outcome }}" == "failure" ]; then
             echo ""
-            echo "❌ ${FAILED_COUNT} TEST PLAN(S) FAILED:"
-            echo -e "$FAILED_TESTS"
+            echo "❌ Tests failed!"
             echo ""
             echo "💡 Check the logs above for detailed error messages"
+            echo "💡 Tuist ran only the tests affected by your changes"
             echo ""
             exit 1
           else
             echo ""
-            echo "✅ All 4 test plans passed!"
+            echo "✅ All affected tests passed!"
+            echo "💡 Tuist used selective testing to run only relevant tests"
             echo ""
           fi

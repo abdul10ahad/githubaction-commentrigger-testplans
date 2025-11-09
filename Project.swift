@@ -99,11 +99,16 @@ let project = Project(
             name: "manual_Trigger",
             shared: true,
             buildAction: .buildAction(targets: ["manual_Trigger"]),
-            testAction: .testPlans([
-                "manual_Trigger/FirstLegTests.xctestplan",
-                "manual_Trigger/SecondLegTests.xctestplan",
-                "manual_Trigger/ThirdLegTests.xctestplan"
-            ])
+            testAction: .targets(
+                [
+                    "manual_TriggerTests",
+                    "MathFeatureUITests",
+                    "StringFeatureUITests",
+                    "ArrayFeatureUITests"
+                ],
+                configuration: .debug,
+                options: .options(coverage: false)
+            )
         )
     ]
 )

@@ -2,7 +2,34 @@ import ProjectDescription
 
 let project = Project(
     name: "manual_Trigger",
+    settings: .settings(
+        base: ["MACOSX_DEPLOYMENT_TARGET": "14.0"]
+    ),
     targets: [
+        // Feature Frameworks
+        .target(
+            name: "MathFeature",
+            destinations: .macOS,
+            product: .framework,
+            bundleId: "com.abdulahad.MathFeature",
+            sources: ["Features/MathFeature/Sources/**/*.swift"]
+        ),
+        .target(
+            name: "StringFeature",
+            destinations: .macOS,
+            product: .framework,
+            bundleId: "com.abdulahad.StringFeature",
+            sources: ["Features/StringFeature/Sources/**/*.swift"]
+        ),
+        .target(
+            name: "ArrayFeature",
+            destinations: .macOS,
+            product: .framework,
+            bundleId: "com.abdulahad.ArrayFeature",
+            sources: ["Features/ArrayFeature/Sources/**/*.swift"]
+        ),
+
+        // Main App
         .target(
             name: "manual_Trigger",
             destinations: .macOS,
@@ -10,8 +37,14 @@ let project = Project(
             bundleId: "com.abdulahad.manual-Trigger",
             sources: ["manual_Trigger/manual_Trigger/**/*.swift"],
             resources: ["manual_Trigger/manual_Trigger/**/*.{xcassets,storyboard,xib,xcdatamodeld}"],
-            dependencies: []
+            dependencies: [
+                .target(name: "MathFeature"),
+                .target(name: "StringFeature"),
+                .target(name: "ArrayFeature")
+            ]
         ),
+
+        // Unit Tests
         .target(
             name: "manual_TriggerTests",
             destinations: .macOS,
@@ -19,7 +52,45 @@ let project = Project(
             bundleId: "com.abdulahad.manual-TriggerTests",
             sources: ["manual_Trigger/manual_TriggerTests/**/*.swift"],
             dependencies: [
-                .target(name: "manual_Trigger")
+                .target(name: "manual_Trigger"),
+                .target(name: "MathFeature"),
+                .target(name: "StringFeature"),
+                .target(name: "ArrayFeature")
+            ]
+        ),
+
+        // UI Tests for each feature
+        .target(
+            name: "MathFeatureUITests",
+            destinations: .macOS,
+            product: .uiTests,
+            bundleId: "com.abdulahad.MathFeatureUITests",
+            sources: ["Features/MathFeature/UITests/**/*.swift"],
+            dependencies: [
+                .target(name: "manual_Trigger"),
+                .target(name: "MathFeature")
+            ]
+        ),
+        .target(
+            name: "StringFeatureUITests",
+            destinations: .macOS,
+            product: .uiTests,
+            bundleId: "com.abdulahad.StringFeatureUITests",
+            sources: ["Features/StringFeature/UITests/**/*.swift"],
+            dependencies: [
+                .target(name: "manual_Trigger"),
+                .target(name: "StringFeature")
+            ]
+        ),
+        .target(
+            name: "ArrayFeatureUITests",
+            destinations: .macOS,
+            product: .uiTests,
+            bundleId: "com.abdulahad.ArrayFeatureUITests",
+            sources: ["Features/ArrayFeature/UITests/**/*.swift"],
+            dependencies: [
+                .target(name: "manual_Trigger"),
+                .target(name: "ArrayFeature")
             ]
         )
     ],

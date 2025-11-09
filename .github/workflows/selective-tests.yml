@@ -1,4 +1,4 @@
-name: Selective Tests with Tuist
+name: Selective Tests with Tuist (Modular)
 
 on:
   pull_request:
@@ -13,7 +13,7 @@ permissions:
 jobs:
   selective-tests:
     runs-on: macos-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout PR branch
@@ -29,38 +29,98 @@ jobs:
         run: |
           tuist generate
 
-      - name: Run Tests (FirstLegTests)
+      - name: Run Unit Tests (FirstLegTests)
         id: first-leg
         run: |
-          echo "Running FirstLegTests..."
-          tuist test FirstLegTests \
-            --configuration Debug \
-            --platform macOS
+          echo "Running FirstLegTests (Unit Tests)..."
+          xcodebuild test \
+            -workspace manual_Trigger.xcworkspace \
+            -scheme manual_Trigger \
+            -testPlan FirstLegTests \
+            -destination 'platform=macOS' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
         continue-on-error: true
 
-      - name: Run Tests (SecondLegTests)
+      - name: Run Unit Tests (SecondLegTests)
         id: second-leg
         run: |
-          echo "Running SecondLegTests..."
-          tuist test SecondLegTests \
-            --configuration Debug \
-            --platform macOS
+          echo "Running SecondLegTests (Unit Tests)..."
+          xcodebuild test \
+            -workspace manual_Trigger.xcworkspace \
+            -scheme manual_Trigger \
+            -testPlan SecondLegTests \
+            -destination 'platform=macOS' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
         continue-on-error: true
 
-      - name: Run Tests (ThirdLegTests)
+      - name: Run Unit Tests (ThirdLegTests)
         id: third-leg
         run: |
-          echo "Running ThirdLegTests..."
-          tuist test ThirdLegTests \
-            --configuration Debug \
-            --platform macOS
+          echo "Running ThirdLegTests (Unit Tests)..."
+          xcodebuild test \
+            -workspace manual_Trigger.xcworkspace \
+            -scheme manual_Trigger \
+            -testPlan ThirdLegTests \
+            -destination 'platform=macOS' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+        continue-on-error: true
+
+      - name: Run UI Tests (MathFeature)
+        id: math-ui-tests
+        run: |
+          echo "Running MathFeatureUITests..."
+          xcodebuild test \
+            -workspace manual_Trigger.xcworkspace \
+            -scheme manual_Trigger \
+            -only-testing:MathFeatureUITests \
+            -destination 'platform=macOS' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+        continue-on-error: true
+
+      - name: Run UI Tests (StringFeature)
+        id: string-ui-tests
+        run: |
+          echo "Running StringFeatureUITests..."
+          xcodebuild test \
+            -workspace manual_Trigger.xcworkspace \
+            -scheme manual_Trigger \
+            -only-testing:StringFeatureUITests \
+            -destination 'platform=macOS' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+        continue-on-error: true
+
+      - name: Run UI Tests (ArrayFeature)
+        id: array-ui-tests
+        run: |
+          echo "Running ArrayFeatureUITests..."
+          xcodebuild test \
+            -workspace manual_Trigger.xcworkspace \
+            -scheme manual_Trigger \
+            -only-testing:ArrayFeatureUITests \
+            -destination 'platform=macOS' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
         continue-on-error: true
 
       - name: Check test results
         run: |
           if [ "${{ steps.first-leg.outcome }}" == "failure" ] || \
              [ "${{ steps.second-leg.outcome }}" == "failure" ] || \
-             [ "${{ steps.third-leg.outcome }}" == "failure" ]; then
+             [ "${{ steps.third-leg.outcome }}" == "failure" ] || \
+             [ "${{ steps.math-ui-tests.outcome }}" == "failure" ] || \
+             [ "${{ steps.string-ui-tests.outcome }}" == "failure" ] || \
+             [ "${{ steps.array-ui-tests.outcome }}" == "failure" ]; then
             echo "One or more test legs failed"
             exit 1
           else

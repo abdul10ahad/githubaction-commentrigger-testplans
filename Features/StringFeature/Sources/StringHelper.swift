@@ -7,12 +7,14 @@
 
 import Foundation
 
-struct StringHelper {
-    static func concatenate(_ strings: String...) -> String {
+public struct StringHelper {
+    public static func concatenate(_ strings: String...) -> String {
         return strings.joined(separator: " ")
     }
 
-    static func length(of string: String) -> Int {
+    public static func length(of string: String) -> Int {
         return string.count
     }
+
+    public init() {}
 }

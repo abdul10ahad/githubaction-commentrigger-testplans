@@ -7,6 +7,9 @@
 
 import Testing
 @testable import manual_Trigger
+import MathFeature
+import StringFeature
+import ArrayFeature
 
 struct manual_TriggerTests {
 

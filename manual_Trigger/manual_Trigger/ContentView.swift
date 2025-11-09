@@ -22,6 +22,7 @@ struct ContentView: View {
 
             // Using feature modules
             Text("Math: 2 + 4 = \(MathHelper.add(2, 4))")
+            Text("Power: 2^3 = \(MathHelper.power(2, 3))")
             Text("String: \(StringHelper.concatenate("Hello", "World"))")
             Text("Array count: \(ArrayHelper.count([1, 2, 3, 4, 5]))")
         }

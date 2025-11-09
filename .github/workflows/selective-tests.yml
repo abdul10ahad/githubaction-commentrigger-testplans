@@ -56,6 +56,10 @@ jobs:
           xcodebuild test \
             -workspace manual_Trigger.xcworkspace \
             -scheme manual_Trigger \
+            -testPlan manual_Trigger/AllUnitTests.xctestplan \
+            -testPlan manual_Trigger/FirstLegTests.xctestplan \
+            -testPlan manual_Trigger/SecondLegTests.xctestplan \
+            -testPlan manual_Trigger/ThirdLegTests.xctestplan \
             -destination 'platform=macOS' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \

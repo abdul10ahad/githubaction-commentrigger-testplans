@@ -120,51 +120,60 @@ jobs:
           echo "=========================================="
           echo ""
           echo "Unit Tests:"
-          echo "  FirstLegTests:    ${{ steps.first-leg.outcome }}"
-          echo "  SecondLegTests:   ${{ steps.second-leg.outcome }}"
-          echo "  ThirdLegTests:    ${{ steps.third-leg.outcome }}"
+          echo "  FirstLegTests:    ${{ steps.first-leg.outcome }} (${{ steps.first-leg.conclusion }})"
+          echo "  SecondLegTests:   ${{ steps.second-leg.outcome }} (${{ steps.second-leg.conclusion }})"
+          echo "  ThirdLegTests:    ${{ steps.third-leg.outcome }} (${{ steps.third-leg.conclusion }})"
           echo ""
           echo "UI Tests:"
-          echo "  MathFeatureUI:    ${{ steps.math-ui-tests.outcome }}"
-          echo "  StringFeatureUI:  ${{ steps.string-ui-tests.outcome }}"
-          echo "  ArrayFeatureUI:   ${{ steps.array-ui-tests.outcome }}"
+          echo "  MathFeatureUI:    ${{ steps.math-ui-tests.outcome }} (${{ steps.math-ui-tests.conclusion }})"
+          echo "  StringFeatureUI:  ${{ steps.string-ui-tests.outcome }} (${{ steps.string-ui-tests.conclusion }})"
+          echo "  ArrayFeatureUI:   ${{ steps.array-ui-tests.outcome }} (${{ steps.array-ui-tests.conclusion }})"
           echo ""
           echo "=========================================="
 
           FAILED_TESTS=""
+          FAILED_COUNT=0
 
           if [ "${{ steps.first-leg.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  - FirstLegTests (Unit)"
+            FAILED_TESTS="${FAILED_TESTS}\n  ❌ FirstLegTests (Unit) - ${{ steps.first-leg.conclusion }}"
+            FAILED_COUNT=$((FAILED_COUNT + 1))
           fi
 
           if [ "${{ steps.second-leg.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  - SecondLegTests (Unit)"
+            FAILED_TESTS="${FAILED_TESTS}\n  ❌ SecondLegTests (Unit) - ${{ steps.second-leg.conclusion }}"
+            FAILED_COUNT=$((FAILED_COUNT + 1))
           fi
 
           if [ "${{ steps.third-leg.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  - ThirdLegTests (Unit)"
+            FAILED_TESTS="${FAILED_TESTS}\n  ❌ ThirdLegTests (Unit) - ${{ steps.third-leg.conclusion }}"
+            FAILED_COUNT=$((FAILED_COUNT + 1))
           fi
 
           if [ "${{ steps.math-ui-tests.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  - MathFeatureUITests"
+            FAILED_TESTS="${FAILED_TESTS}\n  ❌ MathFeatureUITests - ${{ steps.math-ui-tests.conclusion }}"
+            FAILED_COUNT=$((FAILED_COUNT + 1))
           fi
 
           if [ "${{ steps.string-ui-tests.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  - StringFeatureUITests"
+            FAILED_TESTS="${FAILED_TESTS}\n  ❌ StringFeatureUITests - ${{ steps.string-ui-tests.conclusion }}"
+            FAILED_COUNT=$((FAILED_COUNT + 1))
           fi
 
           if [ "${{ steps.array-ui-tests.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  - ArrayFeatureUITests"
+            FAILED_TESTS="${FAILED_TESTS}\n  ❌ ArrayFeatureUITests - ${{ steps.array-ui-tests.conclusion }}"
+            FAILED_COUNT=$((FAILED_COUNT + 1))
           fi
 
           if [ -n "$FAILED_TESTS" ]; then
             echo ""
-            echo "❌ FAILED TESTS:"
+            echo "❌ ${FAILED_COUNT} TEST(S) FAILED:"
             echo -e "$FAILED_TESTS"
+            echo ""
+            echo "💡 Check the logs above for detailed error messages"
             echo ""
             exit 1
           else
             echo ""
-            echo "✅ All tests passed!"
+            echo "✅ All 6 test suites passed!"
             echo ""
           fi

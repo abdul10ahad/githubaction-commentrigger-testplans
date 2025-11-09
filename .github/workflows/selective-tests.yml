@@ -1,4 +1,4 @@
-name: Selective Tests
+name: Selective Tests with Tuist
 
 on:
   pull_request:
@@ -21,143 +21,39 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Mint
+      - name: Install Tuist
         run: |
-          brew install mint
+          curl -Ls https://install.tuist.io | bash
 
-      - name: Install XcodeSelectiveTesting
+      - name: Generate Xcode project with Tuist
         run: |
-          mint install mikeger/XcodeSelectiveTesting@0.13.1
-
-      - name: Get changed files
-        id: changed-files
-        run: |
-          # Fetch the base branch
-          git fetch origin ${{ github.base_ref }}
-
-          # Get the merge base
-          BASE_SHA=$(git merge-base origin/${{ github.base_ref }} HEAD)
-
-          # Get changed files
-          CHANGED_FILES=$(git diff --name-only $BASE_SHA HEAD | tr '\n' ',' | sed 's/,$//')
-
-          # Check if test files changed
-          if echo "$CHANGED_FILES" | grep -q "Tests"; then
-            echo "Test files changed - will run all tests without selective testing"
-            echo "skip_selective=true" >> $GITHUB_OUTPUT
-            echo "changed_files=" >> $GITHUB_OUTPUT
-          else
-            echo "skip_selective=false" >> $GITHUB_OUTPUT
-            echo "changed_files=$CHANGED_FILES" >> $GITHUB_OUTPUT
-          fi
-
-          echo "Base branch: ${{ github.base_ref }}"
-          echo "Base SHA: $BASE_SHA"
-          echo "Changed files: $CHANGED_FILES"
-
-          # Show the files for debugging
-          echo "Files changed in this PR:"
-          git diff --name-only $BASE_SHA HEAD
-
-      - name: Run XcodeSelectiveTesting on FirstLegTests
-        run: |
-          cd manual_Trigger
-          if [ "${{ steps.changed-files.outputs.skip_selective }}" == "true" ]; then
-            echo "⏩ Skipping selective testing - test files changed, will run all tests"
-          elif [ -n "${{ steps.changed-files.outputs.changed_files }}" ]; then
-            echo "========== FirstLegTests BEFORE XcodeSelectiveTesting =========="
-            cat FirstLegTests.xctestplan
-            echo ""
-            echo "Running XcodeSelectiveTesting on FirstLegTests..."
-            /Users/runner/.mint/bin/xcode-selective-test manual_Trigger.xcodeproj \
-              --test-plan FirstLegTests.xctestplan \
-              --changed-files "${{ steps.changed-files.outputs.changed_files }}" \
-              --verbose || true
-            echo ""
-            echo "========== FirstLegTests AFTER XcodeSelectiveTesting =========="
-            cat FirstLegTests.xctestplan
-          else
-            echo "No changed files detected, skipping XcodeSelectiveTesting"
-          fi
-
-      - name: Run XcodeSelectiveTesting on SecondLegTests
-        run: |
-          cd manual_Trigger
-          if [ "${{ steps.changed-files.outputs.skip_selective }}" == "true" ]; then
-            echo "⏩ Skipping selective testing - test files changed, will run all tests"
-          elif [ -n "${{ steps.changed-files.outputs.changed_files }}" ]; then
-            echo "========== SecondLegTests BEFORE XcodeSelectiveTesting =========="
-            cat SecondLegTests.xctestplan
-            echo ""
-            echo "Running XcodeSelectiveTesting on SecondLegTests..."
-            /Users/runner/.mint/bin/xcode-selective-test manual_Trigger.xcodeproj \
-              --test-plan SecondLegTests.xctestplan \
-              --changed-files "${{ steps.changed-files.outputs.changed_files }}" \
-              --verbose || true
-            echo ""
-            echo "========== SecondLegTests AFTER XcodeSelectiveTesting =========="
-            cat SecondLegTests.xctestplan
-          fi
-
-      - name: Run XcodeSelectiveTesting on ThirdLegTests
-        run: |
-          cd manual_Trigger
-          if [ "${{ steps.changed-files.outputs.skip_selective }}" == "true" ]; then
-            echo "⏩ Skipping selective testing - test files changed, will run all tests"
-          elif [ -n "${{ steps.changed-files.outputs.changed_files }}" ]; then
-            echo "========== ThirdLegTests BEFORE XcodeSelectiveTesting =========="
-            cat ThirdLegTests.xctestplan
-            echo ""
-            echo "Running XcodeSelectiveTesting on ThirdLegTests..."
-            /Users/runner/.mint/bin/xcode-selective-test manual_Trigger.xcodeproj \
-              --test-plan ThirdLegTests.xctestplan \
-              --changed-files "${{ steps.changed-files.outputs.changed_files }}" \
-              --verbose || true
-            echo ""
-            echo "========== ThirdLegTests AFTER XcodeSelectiveTesting =========="
-            cat ThirdLegTests.xctestplan
-          fi
+          tuist generate
 
       - name: Run Tests (FirstLegTests)
         id: first-leg
         run: |
-          cd manual_Trigger
           echo "Running FirstLegTests..."
-          xcodebuild test \
-            -scheme manual_Trigger \
-            -testPlan FirstLegTests \
-            -destination 'platform=macOS' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+          tuist test FirstLegTests \
+            --configuration Debug \
+            --platform macOS
         continue-on-error: true
 
       - name: Run Tests (SecondLegTests)
         id: second-leg
         run: |
-          cd manual_Trigger
           echo "Running SecondLegTests..."
-          xcodebuild test \
-            -scheme manual_Trigger \
-            -testPlan SecondLegTests \
-            -destination 'platform=macOS' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+          tuist test SecondLegTests \
+            --configuration Debug \
+            --platform macOS
         continue-on-error: true
 
       - name: Run Tests (ThirdLegTests)
         id: third-leg
         run: |
-          cd manual_Trigger
           echo "Running ThirdLegTests..."
-          xcodebuild test \
-            -scheme manual_Trigger \
-            -testPlan ThirdLegTests \
-            -destination 'platform=macOS' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+          tuist test ThirdLegTests \
+            --configuration Debug \
+            --platform macOS
         continue-on-error: true
 
       - name: Check test results

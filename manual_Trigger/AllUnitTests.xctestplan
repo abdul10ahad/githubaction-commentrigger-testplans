@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "ALL-UNIT-TESTS-CONFIG",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:manual_Trigger.xcodeproj",
+        "identifier" : "5406500C2EBEA97A004131AE",
+        "name" : "manual_TriggerTests"
+      }
+    }
+  ],
+  "version" : 2
+}

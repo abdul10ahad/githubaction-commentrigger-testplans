@@ -29,10 +29,24 @@ jobs:
         run: |
           tuist generate
 
-      - name: Run Unit Tests (FirstLegTests)
+      - name: Run All Unit Tests
+        id: all-unit-tests
+        run: |
+          echo "Running All Unit Tests..."
+          xcodebuild test \
+            -workspace manual_Trigger.xcworkspace \
+            -scheme manual_Trigger \
+            -testPlan AllUnitTests \
+            -destination 'platform=macOS' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
+        continue-on-error: true
+
+      - name: Run FirstLeg (Math Unit + UI Tests)
         id: first-leg
         run: |
-          echo "Running FirstLegTests (Unit Tests)..."
+          echo "Running FirstLegTests (Math Unit + UI Tests)..."
           xcodebuild test \
             -workspace manual_Trigger.xcworkspace \
             -scheme manual_Trigger \
@@ -43,10 +57,10 @@ jobs:
             CODE_SIGNING_ALLOWED=NO
         continue-on-error: true
 
-      - name: Run Unit Tests (SecondLegTests)
+      - name: Run SecondLeg (String Unit + UI Tests)
         id: second-leg
         run: |
-          echo "Running SecondLegTests (Unit Tests)..."
+          echo "Running SecondLegTests (String Unit + UI Tests)..."
           xcodebuild test \
             -workspace manual_Trigger.xcworkspace \
             -scheme manual_Trigger \
@@ -57,56 +71,14 @@ jobs:
             CODE_SIGNING_ALLOWED=NO
         continue-on-error: true
 
-      - name: Run Unit Tests (ThirdLegTests)
+      - name: Run ThirdLeg (Array Unit + UI Tests)
         id: third-leg
         run: |
-          echo "Running ThirdLegTests (Unit Tests)..."
+          echo "Running ThirdLegTests (Array Unit + UI Tests)..."
           xcodebuild test \
             -workspace manual_Trigger.xcworkspace \
             -scheme manual_Trigger \
             -testPlan ThirdLegTests \
-            -destination 'platform=macOS' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
-        continue-on-error: true
-
-      - name: Run UI Tests (MathFeature)
-        id: math-ui-tests
-        run: |
-          echo "Running MathFeatureUITests..."
-          xcodebuild test \
-            -workspace manual_Trigger.xcworkspace \
-            -scheme manual_Trigger \
-            -only-testing:MathFeatureUITests \
-            -destination 'platform=macOS' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
-        continue-on-error: true
-
-      - name: Run UI Tests (StringFeature)
-        id: string-ui-tests
-        run: |
-          echo "Running StringFeatureUITests..."
-          xcodebuild test \
-            -workspace manual_Trigger.xcworkspace \
-            -scheme manual_Trigger \
-            -only-testing:StringFeatureUITests \
-            -destination 'platform=macOS' \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
-        continue-on-error: true
-
-      - name: Run UI Tests (ArrayFeature)
-        id: array-ui-tests
-        run: |
-          echo "Running ArrayFeatureUITests..."
-          xcodebuild test \
-            -workspace manual_Trigger.xcworkspace \
-            -scheme manual_Trigger \
-            -only-testing:ArrayFeatureUITests \
             -destination 'platform=macOS' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
@@ -120,53 +92,41 @@ jobs:
           echo "=========================================="
           echo ""
           echo "Unit Tests:"
-          echo "  FirstLegTests:    ${{ steps.first-leg.outcome }} (${{ steps.first-leg.conclusion }})"
-          echo "  SecondLegTests:   ${{ steps.second-leg.outcome }} (${{ steps.second-leg.conclusion }})"
-          echo "  ThirdLegTests:    ${{ steps.third-leg.outcome }} (${{ steps.third-leg.conclusion }})"
+          echo "  AllUnitTests:     ${{ steps.all-unit-tests.outcome }} (${{ steps.all-unit-tests.conclusion }})"
           echo ""
-          echo "UI Tests:"
-          echo "  MathFeatureUI:    ${{ steps.math-ui-tests.outcome }} (${{ steps.math-ui-tests.conclusion }})"
-          echo "  StringFeatureUI:  ${{ steps.string-ui-tests.outcome }} (${{ steps.string-ui-tests.conclusion }})"
-          echo "  ArrayFeatureUI:   ${{ steps.array-ui-tests.outcome }} (${{ steps.array-ui-tests.conclusion }})"
+          echo "Feature Tests (Unit + UI):"
+          echo "  FirstLeg (Math):   ${{ steps.first-leg.outcome }} (${{ steps.first-leg.conclusion }})"
+          echo "  SecondLeg (String): ${{ steps.second-leg.outcome }} (${{ steps.second-leg.conclusion }})"
+          echo "  ThirdLeg (Array):  ${{ steps.third-leg.outcome }} (${{ steps.third-leg.conclusion }})"
           echo ""
           echo "=========================================="
 
           FAILED_TESTS=""
           FAILED_COUNT=0
 
+          if [ "${{ steps.all-unit-tests.outcome }}" == "failure" ]; then
+            FAILED_TESTS="${FAILED_TESTS}\n  ❌ AllUnitTests - ${{ steps.all-unit-tests.conclusion }}"
+            FAILED_COUNT=$((FAILED_COUNT + 1))
+          fi
+
           if [ "${{ steps.first-leg.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  ❌ FirstLegTests (Unit) - ${{ steps.first-leg.conclusion }}"
+            FAILED_TESTS="${FAILED_TESTS}\n  ❌ FirstLeg (Math Unit + UI) - ${{ steps.first-leg.conclusion }}"
             FAILED_COUNT=$((FAILED_COUNT + 1))
           fi
 
           if [ "${{ steps.second-leg.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  ❌ SecondLegTests (Unit) - ${{ steps.second-leg.conclusion }}"
+            FAILED_TESTS="${FAILED_TESTS}\n  ❌ SecondLeg (String Unit + UI) - ${{ steps.second-leg.conclusion }}"
             FAILED_COUNT=$((FAILED_COUNT + 1))
           fi
 
           if [ "${{ steps.third-leg.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  ❌ ThirdLegTests (Unit) - ${{ steps.third-leg.conclusion }}"
-            FAILED_COUNT=$((FAILED_COUNT + 1))
-          fi
-
-          if [ "${{ steps.math-ui-tests.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  ❌ MathFeatureUITests - ${{ steps.math-ui-tests.conclusion }}"
-            FAILED_COUNT=$((FAILED_COUNT + 1))
-          fi
-
-          if [ "${{ steps.string-ui-tests.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  ❌ StringFeatureUITests - ${{ steps.string-ui-tests.conclusion }}"
-            FAILED_COUNT=$((FAILED_COUNT + 1))
-          fi
-
-          if [ "${{ steps.array-ui-tests.outcome }}" == "failure" ]; then
-            FAILED_TESTS="${FAILED_TESTS}\n  ❌ ArrayFeatureUITests - ${{ steps.array-ui-tests.conclusion }}"
+            FAILED_TESTS="${FAILED_TESTS}\n  ❌ ThirdLeg (Array Unit + UI) - ${{ steps.third-leg.conclusion }}"
             FAILED_COUNT=$((FAILED_COUNT + 1))
           fi
 
           if [ -n "$FAILED_TESTS" ]; then
             echo ""
-            echo "❌ ${FAILED_COUNT} TEST(S) FAILED:"
+            echo "❌ ${FAILED_COUNT} TEST PLAN(S) FAILED:"
             echo -e "$FAILED_TESTS"
             echo ""
             echo "💡 Check the logs above for detailed error messages"
@@ -174,6 +134,6 @@ jobs:
             exit 1
           else
             echo ""
-            echo "✅ All 6 test suites passed!"
+            echo "✅ All 4 test plans passed!"
             echo ""
           fi

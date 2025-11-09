@@ -13,6 +13,7 @@
   },
   "testTargets" : [
     {
+      "enabled" : true,
       "target" : {
         "containerPath" : "container:manual_Trigger.xcodeproj",
         "identifier" : "3AE57C57AA20222ECB9458C0",

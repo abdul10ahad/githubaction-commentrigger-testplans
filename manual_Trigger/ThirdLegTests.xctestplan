@@ -13,16 +13,11 @@
   },
   "testTargets" : [
     {
+      "enabled" : true,
       "skippedTests" : {
         "suites" : [
           {
-            "name" : "manual_TriggerTests",
-            "testFunctions" : [
-              "testMathAddition()",
-              "testMathMultiplication()",
-              "testStringConcatenation()",
-              "testStringLength()"
-            ]
+            "name" : "manual_TriggerTests"
           }
         ]
       },
@@ -33,6 +28,7 @@
       }
     },
     {
+      "enabled" : true,
       "target" : {
         "containerPath" : "container:manual_Trigger.xcodeproj",
         "identifier" : "ArrayFeatureUITests",

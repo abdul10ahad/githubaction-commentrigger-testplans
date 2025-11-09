@@ -6,41 +6,44 @@
 //
 
 import Testing
+@testable import manual_Trigger
+import MathFeature
+import StringFeature
+import ArrayFeature
 
 struct manual_TriggerTests {
 
-    // First Leg Tests
+    // First Leg Tests - Depend on MathHelper
     @Test func testMathAddition() async throws {
-        let value = 2 + 2
-        #expect(value == 4, "Addition should work")
+        let result = MathHelper.add(2, 4)
+        #expect(result == 6, "Addition should work")
     }
 
     @Test func testMathMultiplication() async throws {
-        let value = 3 * 4
-        #expect(value == 12, "Multiplication should work")
+        let result = MathHelper.multiply(3, 4)
+        #expect(result == 12, "Multiplication should work")
     }
 
-    // Second Leg Tests
+    // Second Leg Tests - Depend on StringHelper
     @Test func testStringLength() async throws {
-        let text = "Hello"
-        #expect(text.count == 5, "String length should be 5")
+        let length = StringHelper.length(of: "Hello")
+        #expect(length == 5, "String length should be 5")
     }
 
     @Test func testStringConcatenation() async throws {
-        let result = "Hello" + " " + "World"
+        let result = StringHelper.concatenate("Hello", "World")
         #expect(result == "Hello World", "String concatenation should work")
     }
 
-    // Third Leg Tests
+    // Third Leg Tests - Depend on ArrayHelper
     @Test func testArrayOperations() async throws {
-        let numbers = [1, 2, 3, 4, 5]
-        #expect(numbers.count == 5, "Array should have 5 elements")
-        #expect(numbers.first == 1, "First element should be 1")
+        let count = ArrayHelper.count([1, 2, 3, 4, 5])
+        #expect(count == 5, "Array should have 5 elements")
     }
 
     @Test func testArrayFiltering() async throws {
         let numbers = [1, 2, 3, 4, 5, 6]
-        let evens = numbers.filter { $0 % 2 == 0 }
+        let evens = ArrayHelper.filterEven(numbers)
         #expect(evens.count == 3, "Should have 3 even numbers")
     }
 

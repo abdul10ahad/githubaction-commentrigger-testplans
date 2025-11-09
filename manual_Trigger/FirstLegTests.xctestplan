@@ -42,6 +42,13 @@
         "identifier" : "5406500C2EBEA97A004131AE",
         "name" : "manual_TriggerTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:manual_Trigger.xcodeproj",
+        "identifier" : "MathFeatureUITests",
+        "name" : "MathFeatureUITests"
+      }
     }
   ],
   "version" : 2

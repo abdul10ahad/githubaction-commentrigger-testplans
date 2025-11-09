@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "A1B2C3D4-5E6F-7A8B-9C0D-1E2F3A4B5C6D",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:manual_Trigger.xcodeproj",
+        "identifier" : "5406500C2EBEA97A004131AE",
+        "name" : "manual_TriggerTests"
+      }
+    }
+  ],
+  "version" : 2
+}

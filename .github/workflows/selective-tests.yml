@@ -40,7 +40,16 @@ jobs:
 
           # Get changed files
           CHANGED_FILES=$(git diff --name-only $BASE_SHA HEAD | tr '\n' ',' | sed 's/,$//')
-          echo "changed_files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+
+          # Check if test files changed
+          if echo "$CHANGED_FILES" | grep -q "Tests"; then
+            echo "Test files changed - will run all tests without selective testing"
+            echo "skip_selective=true" >> $GITHUB_OUTPUT
+            echo "changed_files=" >> $GITHUB_OUTPUT
+          else
+            echo "skip_selective=false" >> $GITHUB_OUTPUT
+            echo "changed_files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+          fi
 
           echo "Base branch: ${{ github.base_ref }}"
           echo "Base SHA: $BASE_SHA"
@@ -53,12 +62,20 @@ jobs:
       - name: Run XcodeSelectiveTesting on FirstLegTests
         run: |
           cd manual_Trigger
-          if [ -n "${{ steps.changed-files.outputs.changed_files }}" ]; then
+          if [ "${{ steps.changed-files.outputs.skip_selective }}" == "true" ]; then
+            echo "⏩ Skipping selective testing - test files changed, will run all tests"
+          elif [ -n "${{ steps.changed-files.outputs.changed_files }}" ]; then
+            echo "========== FirstLegTests BEFORE XcodeSelectiveTesting =========="
+            cat FirstLegTests.xctestplan
+            echo ""
             echo "Running XcodeSelectiveTesting on FirstLegTests..."
             /Users/runner/.mint/bin/xcode-selective-test manual_Trigger.xcodeproj \
               --test-plan FirstLegTests.xctestplan \
               --changed-files "${{ steps.changed-files.outputs.changed_files }}" \
               --verbose || true
+            echo ""
+            echo "========== FirstLegTests AFTER XcodeSelectiveTesting =========="
+            cat FirstLegTests.xctestplan
           else
             echo "No changed files detected, skipping XcodeSelectiveTesting"
           fi
@@ -66,23 +83,39 @@ jobs:
       - name: Run XcodeSelectiveTesting on SecondLegTests
         run: |
           cd manual_Trigger
-          if [ -n "${{ steps.changed-files.outputs.changed_files }}" ]; then
+          if [ "${{ steps.changed-files.outputs.skip_selective }}" == "true" ]; then
+            echo "⏩ Skipping selective testing - test files changed, will run all tests"
+          elif [ -n "${{ steps.changed-files.outputs.changed_files }}" ]; then
+            echo "========== SecondLegTests BEFORE XcodeSelectiveTesting =========="
+            cat SecondLegTests.xctestplan
+            echo ""
             echo "Running XcodeSelectiveTesting on SecondLegTests..."
             /Users/runner/.mint/bin/xcode-selective-test manual_Trigger.xcodeproj \
               --test-plan SecondLegTests.xctestplan \
               --changed-files "${{ steps.changed-files.outputs.changed_files }}" \
               --verbose || true
+            echo ""
+            echo "========== SecondLegTests AFTER XcodeSelectiveTesting =========="
+            cat SecondLegTests.xctestplan
           fi
 
       - name: Run XcodeSelectiveTesting on ThirdLegTests
         run: |
           cd manual_Trigger
-          if [ -n "${{ steps.changed-files.outputs.changed_files }}" ]; then
+          if [ "${{ steps.changed-files.outputs.skip_selective }}" == "true" ]; then
+            echo "⏩ Skipping selective testing - test files changed, will run all tests"
+          elif [ -n "${{ steps.changed-files.outputs.changed_files }}" ]; then
+            echo "========== ThirdLegTests BEFORE XcodeSelectiveTesting =========="
+            cat ThirdLegTests.xctestplan
+            echo ""
             echo "Running XcodeSelectiveTesting on ThirdLegTests..."
             /Users/runner/.mint/bin/xcode-selective-test manual_Trigger.xcodeproj \
               --test-plan ThirdLegTests.xctestplan \
               --changed-files "${{ steps.changed-files.outputs.changed_files }}" \
               --verbose || true
+            echo ""
+            echo "========== ThirdLegTests AFTER XcodeSelectiveTesting =========="
+            cat ThirdLegTests.xctestplan
           fi
 
       - name: Run Tests (FirstLegTests)

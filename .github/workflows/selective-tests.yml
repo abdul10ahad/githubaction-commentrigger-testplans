@@ -31,7 +31,6 @@ jobs:
           echo "Running all tests with Tuist..."
           tuist test manual_Trigger \
             --platform macOS \
-            --no-selective-testing \
             -- CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
         continue-on-error: true
 

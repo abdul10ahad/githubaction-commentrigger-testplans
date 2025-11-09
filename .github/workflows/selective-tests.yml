@@ -57,15 +57,83 @@ jobs:
             -workspace manual_Trigger.xcworkspace \
             -scheme manual_Trigger \
             -destination 'platform=macOS' \
+            -resultBundlePath TestResults.xcresult \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=NO \
+            | tee xcodebuild.log
         continue-on-error: true
 
-      - name: Check test results
+      - name: Parse Test Results
+        if: always()
         run: |
           echo "=========================================="
-          echo "Selective Test Results"
+          echo "Test Execution Summary"
+          echo "=========================================="
+          echo ""
+
+          # Extract test summary from xcodebuild output
+          if [ -f xcodebuild.log ]; then
+            echo "📊 Tests Executed:"
+            echo ""
+
+            # Count executed tests
+            grep "Test Case.*passed\|Test Case.*failed" xcodebuild.log | while read -r line; do
+              echo "  $line"
+            done || echo "  (No test execution details found in logs)"
+
+            echo ""
+            echo "📈 Test Plan Summary:"
+
+            # Look for test plan execution
+            grep -A 2 "Testing with xcodebuild" xcodebuild.log || echo "  (Test plan details not found)"
+
+            echo ""
+            echo "🎯 UI Tests:"
+
+            # Check for UI test execution
+            if grep -q "MathFeatureUITests" xcodebuild.log; then
+              echo "  ✓ MathFeatureUITests - EXECUTED"
+            else
+              echo "  ✗ MathFeatureUITests - NOT FOUND IN LOGS"
+            fi
+
+            if grep -q "StringFeatureUITests" xcodebuild.log; then
+              echo "  ✓ StringFeatureUITests - EXECUTED"
+            else
+              echo "  ✗ StringFeatureUITests - NOT FOUND IN LOGS"
+            fi
+
+            if grep -q "ArrayFeatureUITests" xcodebuild.log; then
+              echo "  ✓ ArrayFeatureUITests - EXECUTED"
+            else
+              echo "  ✗ ArrayFeatureUITests - NOT FOUND IN LOGS"
+            fi
+
+            echo ""
+            echo "📋 Unit Tests:"
+
+            if grep -q "manual_TriggerTests" xcodebuild.log; then
+              echo "  ✓ manual_TriggerTests - EXECUTED"
+
+              # Count individual unit tests
+              unit_test_count=$(grep -c "Test Case '-\[manual_TriggerTests" xcodebuild.log 2>/dev/null || echo "0")
+              echo "    → $unit_test_count unit test cases logged"
+            else
+              echo "  ✗ manual_TriggerTests - NOT FOUND IN LOGS"
+            fi
+          else
+            echo "⚠️  xcodebuild.log not found"
+          fi
+
+          echo ""
+          echo "=========================================="
+
+      - name: Check test results
+        if: always()
+        run: |
+          echo "=========================================="
+          echo "Final Results"
           echo "=========================================="
           echo ""
           echo "XcodeSelectiveTesting: ${{ steps.selective-tests.outcome }}"

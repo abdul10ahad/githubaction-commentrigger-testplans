@@ -16,5 +16,10 @@ public struct ArrayHelper {
         return array.count
     }
 
+    // New function: sum array of integers
+    public static func sum(_ numbers: [Int]) -> Int {
+        return numbers.reduce(0, +)
+    }
+
     public init() {}
 }

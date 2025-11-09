@@ -13,40 +13,25 @@
   },
   "testTargets" : [
     {
+      "enabled" : true,
       "skippedTests" : {
         "suites" : [
           {
-            "name" : "manual_TriggerTests",
-            "testFunctions" : [
-              "testArrayFiltering()",
-              "testArrayOperations()",
-              "testStringConcatenation()",
-              "testStringLength()"
-            ]
-          }
-        ],
-        "xctestClasses" : [
-          {
-            "name" : "manual_TriggerTests",
-            "xctestMethods" : [
-              "testArrayFiltering()",
-              "testArrayOperations()",
-              "testStringConcatenation()",
-              "testStringLength()"
-            ]
+            "name" : "manual_TriggerTests"
           }
         ]
       },
       "target" : {
         "containerPath" : "container:manual_Trigger.xcodeproj",
-        "identifier" : "5406500C2EBEA97A004131AE",
+        "identifier" : "3AE57C57AA20222ECB9458C0",
         "name" : "manual_TriggerTests"
       }
     },
     {
+      "enabled" : true,
       "target" : {
         "containerPath" : "container:manual_Trigger.xcodeproj",
-        "identifier" : "MathFeatureUITests",
+        "identifier" : "8047F333BEFE620FBA7EAE63",
         "name" : "MathFeatureUITests"
       }
     }

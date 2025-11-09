@@ -47,4 +47,17 @@ struct manual_TriggerTests {
         #expect(evens.count == 3, "Should have 3 even numbers")
     }
 
+    // New test for Math divide
+    @Test func testMathDivision() async throws {
+        let result = MathHelper.divide(10, 2)
+        #expect(result == 5, "Division should work")
+    }
+
+    // New test for Array sum
+    @Test func testArraySum() async throws {
+        let numbers = [1, 2, 3, 4, 5]
+        let total = ArrayHelper.sum(numbers)
+        #expect(total == 15, "Sum should be 15")
+    }
+
 }

@@ -115,14 +115,56 @@ jobs:
 
       - name: Check test results
         run: |
-          if [ "${{ steps.first-leg.outcome }}" == "failure" ] || \
-             [ "${{ steps.second-leg.outcome }}" == "failure" ] || \
-             [ "${{ steps.third-leg.outcome }}" == "failure" ] || \
-             [ "${{ steps.math-ui-tests.outcome }}" == "failure" ] || \
-             [ "${{ steps.string-ui-tests.outcome }}" == "failure" ] || \
-             [ "${{ steps.array-ui-tests.outcome }}" == "failure" ]; then
-            echo "One or more test legs failed"
+          echo "=========================================="
+          echo "Test Results Summary"
+          echo "=========================================="
+          echo ""
+          echo "Unit Tests:"
+          echo "  FirstLegTests:    ${{ steps.first-leg.outcome }}"
+          echo "  SecondLegTests:   ${{ steps.second-leg.outcome }}"
+          echo "  ThirdLegTests:    ${{ steps.third-leg.outcome }}"
+          echo ""
+          echo "UI Tests:"
+          echo "  MathFeatureUI:    ${{ steps.math-ui-tests.outcome }}"
+          echo "  StringFeatureUI:  ${{ steps.string-ui-tests.outcome }}"
+          echo "  ArrayFeatureUI:   ${{ steps.array-ui-tests.outcome }}"
+          echo ""
+          echo "=========================================="
+
+          FAILED_TESTS=""
+
+          if [ "${{ steps.first-leg.outcome }}" == "failure" ]; then
+            FAILED_TESTS="${FAILED_TESTS}\n  - FirstLegTests (Unit)"
+          fi
+
+          if [ "${{ steps.second-leg.outcome }}" == "failure" ]; then
+            FAILED_TESTS="${FAILED_TESTS}\n  - SecondLegTests (Unit)"
+          fi
+
+          if [ "${{ steps.third-leg.outcome }}" == "failure" ]; then
+            FAILED_TESTS="${FAILED_TESTS}\n  - ThirdLegTests (Unit)"
+          fi
+
+          if [ "${{ steps.math-ui-tests.outcome }}" == "failure" ]; then
+            FAILED_TESTS="${FAILED_TESTS}\n  - MathFeatureUITests"
+          fi
+
+          if [ "${{ steps.string-ui-tests.outcome }}" == "failure" ]; then
+            FAILED_TESTS="${FAILED_TESTS}\n  - StringFeatureUITests"
+          fi
+
+          if [ "${{ steps.array-ui-tests.outcome }}" == "failure" ]; then
+            FAILED_TESTS="${FAILED_TESTS}\n  - ArrayFeatureUITests"
+          fi
+
+          if [ -n "$FAILED_TESTS" ]; then
+            echo ""
+            echo "❌ FAILED TESTS:"
+            echo -e "$FAILED_TESTS"
+            echo ""
             exit 1
           else
-            echo "All test legs passed"
+            echo ""
+            echo "✅ All tests passed!"
+            echo ""
           fi

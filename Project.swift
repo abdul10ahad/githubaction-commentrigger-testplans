@@ -67,7 +67,6 @@ let project = Project(
             bundleId: "com.abdulahad.MathFeatureUITests",
             sources: ["Features/MathFeature/UITests/**/*.swift"],
             dependencies: [
-                .target(name: "manual_Trigger"),
                 .target(name: "MathFeature")
             ]
         ),
@@ -78,7 +77,6 @@ let project = Project(
             bundleId: "com.abdulahad.StringFeatureUITests",
             sources: ["Features/StringFeature/UITests/**/*.swift"],
             dependencies: [
-                .target(name: "manual_Trigger"),
                 .target(name: "StringFeature")
             ]
         ),
@@ -89,7 +87,6 @@ let project = Project(
             bundleId: "com.abdulahad.ArrayFeatureUITests",
             sources: ["Features/ArrayFeature/UITests/**/*.swift"],
             dependencies: [
-                .target(name: "manual_Trigger"),
                 .target(name: "ArrayFeature")
             ]
         )

@@ -25,34 +25,65 @@ jobs:
         run: |
           brew install tuist
 
-      - name: Run All Tests with Tuist
-        id: tuist-test
+      - name: Install Mint
         run: |
-          echo "Running all tests with Tuist..."
-          tuist test manual_Trigger \
-            --platform macOS \
-            -- CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO
+          brew install mint
+
+      - name: Install XcodeSelectiveTesting
+        run: |
+          mint install mikeger/XcodeSelectiveTesting@0.13.1
+
+      - name: Generate Xcode project with Tuist
+        run: |
+          tuist generate
+
+      - name: Run Selective Tests
+        id: selective-tests
+        run: |
+          echo "Running selective tests with XcodeSelectiveTesting..."
+          mint run mikeger/XcodeSelectiveTesting@0.13.1 manual_Trigger.xcworkspace \
+            --test-plan manual_Trigger/AllUnitTests.xctestplan \
+            --test-plan manual_Trigger/FirstLegTests.xctestplan \
+            --test-plan manual_Trigger/SecondLegTests.xctestplan \
+            --test-plan manual_Trigger/ThirdLegTests.xctestplan \
+            --base-branch origin/main
+        continue-on-error: true
+
+      - name: Run Tests
+        id: run-tests
+        run: |
+          echo "Executing tests..."
+          xcodebuild test \
+            -workspace manual_Trigger.xcworkspace \
+            -scheme manual_Trigger \
+            -destination 'platform=macOS' \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO
         continue-on-error: true
 
       - name: Check test results
         run: |
           echo "=========================================="
-          echo "Test Results"
+          echo "Selective Test Results"
           echo "=========================================="
           echo ""
-          echo "Tuist Test Execution: ${{ steps.tuist-test.outcome }}"
+          echo "XcodeSelectiveTesting: ${{ steps.selective-tests.outcome }}"
+          echo "Test Execution: ${{ steps.run-tests.outcome }}"
           echo ""
           echo "=========================================="
 
-          if [ "${{ steps.tuist-test.outcome }}" == "failure" ]; then
+          if [ "${{ steps.run-tests.outcome }}" == "failure" ]; then
             echo ""
             echo "❌ Tests failed!"
             echo ""
             echo "💡 Check the logs above for detailed error messages"
+            echo "💡 XcodeSelectiveTesting modified test plans to run only affected tests"
             echo ""
             exit 1
           else
             echo ""
-            echo "✅ All tests passed!"
+            echo "✅ All affected tests passed!"
+            echo "💡 XcodeSelectiveTesting ran only tests affected by your changes"
             echo ""
           fi

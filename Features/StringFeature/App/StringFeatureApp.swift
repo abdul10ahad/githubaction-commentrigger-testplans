@@ -22,7 +22,7 @@ struct StringContentView: View {
             Text("Concatenate: \(StringHelper.concatenate(str1, str2))")
                 .accessibilityIdentifier("ConcatenateResult")
 
-            Text("Length of '\(str1)': \(StringHelper.length(str1))")
+            Text("Length of '\(str1)': \(StringHelper.length(of: str1))")
                 .accessibilityIdentifier("LengthResult")
         }
         .padding()

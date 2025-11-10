@@ -26,14 +26,6 @@
         "identifier" : "3AE57C57AA20222ECB9458C0",
         "name" : "manual_TriggerTests"
       }
-    },
-    {
-      "enabled" : true,
-      "target" : {
-        "containerPath" : "container:manual_Trigger.xcodeproj",
-        "identifier" : "8047F333BEFE620FBA7EAE63",
-        "name" : "MathFeatureUITests"
-      }
     }
   ],
   "version" : 2

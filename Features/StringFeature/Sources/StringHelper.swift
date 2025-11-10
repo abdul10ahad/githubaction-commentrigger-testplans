@@ -16,5 +16,9 @@ public struct StringHelper {
         return string.count
     }
 
+    public static func uppercase(_ string: String) -> String {
+        return string.uppercased()
+    }
+
     public init() {}
 }

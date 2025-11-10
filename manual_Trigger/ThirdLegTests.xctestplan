@@ -26,6 +26,14 @@
         "identifier" : "5406500C2EBEA97A004131AE",
         "name" : "manual_TriggerTests"
       }
+    },
+    {
+      "enabled" : true,
+      "target" : {
+        "containerPath" : "container:manual_Trigger.xcodeproj",
+        "identifier" : "ArrayFeatureUITests",
+        "name" : "ArrayFeatureUITests"
+      }
     }
   ],
   "version" : 2

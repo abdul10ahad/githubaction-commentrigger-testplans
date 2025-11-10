@@ -37,6 +37,60 @@ jobs:
         run: |
           tuist generate
 
+      - name: Analyze Changed Files and Dependencies
+        id: analyze-changes
+        run: |
+          echo "=========================================="
+          echo "📊 Selective Testing Analysis"
+          echo "=========================================="
+          echo ""
+
+          echo "🔍 Changed Files:"
+          git diff --name-only origin/main | while read file; do
+            echo "  • $file"
+          done
+          echo ""
+
+          echo "🔗 Running dependency analysis..."
+          echo ""
+
+          # Run XcodeSelectiveTesting with verbose and dry-run to show what will be tested
+          mint run mikeger/XcodeSelectiveTesting@0.13.1 manual_Trigger.xcworkspace \
+            --test-plan manual_Trigger/FirstLegTests.xctestplan \
+            --base-branch origin/main \
+            --verbose \
+            --dry-run 2>&1 | tee /tmp/xst_analysis.log
+
+          echo ""
+          echo "=========================================="
+          echo "🎯 Tests to Execute:"
+          echo "=========================================="
+
+          # Extract and display targets to test
+          if grep -q "Targets to test:" /tmp/xst_analysis.log; then
+            grep "Targets to test:" /tmp/xst_analysis.log -A 20 | grep "manual_Trigger:" | while read target; do
+              case "$target" in
+                *"MathFeatureUITests"*)
+                  echo "  ✓ MathFeatureUITests (FirstLegTests)"
+                  ;;
+                *"StringFeatureUITests"*)
+                  echo "  ✓ StringFeatureUITests (SecondLegTests)"
+                  ;;
+                *"ArrayFeatureUITests"*)
+                  echo "  ✓ ArrayFeatureUITests (ThirdLegTests)"
+                  ;;
+                *"manual_TriggerTests"*)
+                  echo "  ✓ manual_TriggerTests (AllUnitTests)"
+                  ;;
+              esac
+            done
+          else
+            echo "  ⚠️  No targets to test information found"
+          fi
+
+          echo ""
+          echo "=========================================="
+
       - name: Run Selective Tests
         id: selective-tests
         run: |

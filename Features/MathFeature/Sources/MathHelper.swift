@@ -43,5 +43,10 @@ public struct MathHelper {
         return value < 0 ? -value : value
     }
 
+    // New function: calculate minimum of two numbers
+    public static func min(_ a: Int, _ b: Int) -> Int {
+        return a < b ? a : b
+    }
+
     public init() {}
 }

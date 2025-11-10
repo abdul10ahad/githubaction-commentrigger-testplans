@@ -33,5 +33,15 @@ public struct MathHelper {
         return a % b
     }
 
+    // New function: power operation
+    public static func power(_ base: Int, _ exponent: Int) -> Int {
+        return Int(pow(Double(base), Double(exponent)))
+    }
+
+    // New function: absolute value
+    public static func abs(_ value: Int) -> Int {
+        return value < 0 ? -value : value
+    }
+
     public init() {}
 }

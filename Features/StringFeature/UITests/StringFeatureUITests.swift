@@ -17,16 +17,11 @@ final class StringFeatureUITests: XCTestCase {
     }
 
     func testStringFeatureUI() throws {
-        // UI test for String feature
-        // In a real app, you'd interact with text fields/labels
-        XCTAssertTrue(app.staticTexts["Hello, world!"].exists)
+        XCTAssertTrue(app.staticTexts["String Feature Demo"].exists)
+        XCTAssertTrue(app.staticTexts["ConcatenateResult"].exists)
     }
 
-    func testStringConcatenationUI() throws {
-        // Example: Testing string concatenation in UI
-        // app.textFields["Input1"].tap()
-        // app.textFields["Input1"].typeText("Hello")
-        // XCTAssertTrue(app.staticTexts["Hello World"].exists)
-        XCTAssertTrue(true, "String UI test placeholder")
+    func testStringOperations() throws {
+        XCTAssertTrue(app.staticTexts["LengthResult"].exists)
     }
 }

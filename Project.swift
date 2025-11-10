@@ -29,6 +29,41 @@ let project = Project(
             sources: ["Features/ArrayFeature/Sources/**/*.swift"]
         ),
 
+        // Feature Mini Apps
+        .target(
+            name: "MathFeatureApp",
+            destinations: .macOS,
+            product: .app,
+            bundleId: "com.abdulahad.MathFeatureApp",
+            sources: ["Features/MathFeature/App/**/*.swift"],
+            resources: ["Features/MathFeature/App/**/*.{xcassets,storyboard,xib}"],
+            dependencies: [
+                .target(name: "MathFeature")
+            ]
+        ),
+        .target(
+            name: "StringFeatureApp",
+            destinations: .macOS,
+            product: .app,
+            bundleId: "com.abdulahad.StringFeatureApp",
+            sources: ["Features/StringFeature/App/**/*.swift"],
+            resources: ["Features/StringFeature/App/**/*.{xcassets,storyboard,xib}"],
+            dependencies: [
+                .target(name: "StringFeature")
+            ]
+        ),
+        .target(
+            name: "ArrayFeatureApp",
+            destinations: .macOS,
+            product: .app,
+            bundleId: "com.abdulahad.ArrayFeatureApp",
+            sources: ["Features/ArrayFeature/App/**/*.swift"],
+            resources: ["Features/ArrayFeature/App/**/*.{xcassets,storyboard,xib}"],
+            dependencies: [
+                .target(name: "ArrayFeature")
+            ]
+        ),
+
         // Main App
         .target(
             name: "manual_Trigger",
@@ -67,7 +102,7 @@ let project = Project(
             bundleId: "com.abdulahad.MathFeatureUITests",
             sources: ["Features/MathFeature/UITests/**/*.swift"],
             dependencies: [
-                .target(name: "manual_Trigger"),
+                .target(name: "MathFeatureApp"),
                 .target(name: "MathFeature")
             ]
         ),
@@ -78,7 +113,7 @@ let project = Project(
             bundleId: "com.abdulahad.StringFeatureUITests",
             sources: ["Features/StringFeature/UITests/**/*.swift"],
             dependencies: [
-                .target(name: "manual_Trigger"),
+                .target(name: "StringFeatureApp"),
                 .target(name: "StringFeature")
             ]
         ),
@@ -89,7 +124,7 @@ let project = Project(
             bundleId: "com.abdulahad.ArrayFeatureUITests",
             sources: ["Features/ArrayFeature/UITests/**/*.swift"],
             dependencies: [
-                .target(name: "manual_Trigger"),
+                .target(name: "ArrayFeatureApp"),
                 .target(name: "ArrayFeature")
             ]
         )

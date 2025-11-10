@@ -17,15 +17,17 @@ final class MathFeatureUITests: XCTestCase {
     }
 
     func testMathFeatureUI() throws {
-        // UI test for Math feature
-        // In a real app, you'd interact with buttons/labels related to math calculations
-        XCTAssertTrue(app.staticTexts["Hello, world!"].exists)
+        XCTAssertTrue(app.staticTexts["Math Feature Demo"].exists)
+        XCTAssertTrue(app.staticTexts["AddResult"].exists)
+        XCTAssertTrue(app.staticTexts["MultiplyResult"].exists)
     }
 
-    func testMathCalculatorButton() throws {
-        // Example: Testing a calculator button
-        // app.buttons["Calculate"].tap()
-        // XCTAssertTrue(app.staticTexts["Result: 6"].exists)
-        XCTAssertTrue(true, "Math UI test placeholder")
+    func testMathCalculations() throws {
+        // Verify the calculations are displayed
+        XCTAssertTrue(app.staticTexts["SubtractResult"].exists)
+        XCTAssertTrue(app.staticTexts["DivideResult"].exists)
+        XCTAssertTrue(app.staticTexts["ModuloResult"].exists)
+        XCTAssertTrue(app.staticTexts["PowerResult"].exists)
+        XCTAssertTrue(app.staticTexts["AbsResult"].exists)
     }
 }

@@ -17,15 +17,12 @@ final class ArrayFeatureUITests: XCTestCase {
     }
 
     func testArrayFeatureUI() throws {
-        // UI test for Array feature
-        // In a real app, you'd interact with lists/tables
-        XCTAssertTrue(app.staticTexts["Hello, world!"].exists)
+        XCTAssertTrue(app.staticTexts["Array Feature Demo"].exists)
+        XCTAssertTrue(app.staticTexts["FilterEvenResult"].exists)
     }
 
-    func testArrayFilteringUI() throws {
-        // Example: Testing array filtering in UI
-        // app.buttons["FilterEven"].tap()
-        // XCTAssertEqual(app.tables.cells.count, 3)
-        XCTAssertTrue(true, "Array UI test placeholder")
+    func testArrayOperations() throws {
+        XCTAssertTrue(app.staticTexts["CountResult"].exists)
+        XCTAssertTrue(app.staticTexts["SumResult"].exists)
     }
 }
